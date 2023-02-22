@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from . import choices
 
 
 class UserManager(BaseUserManager):
@@ -18,7 +19,7 @@ class UserManager(BaseUserManager):
         if not phone_number:
             raise ValueError('Users must have a phone number')
 
-    def create_user(self, email: str, phone_number: str) -> 'User':
+    def create_user(self, email: str, phone_number: str, password: str = None) -> 'User':
         """
         Creates and saves a User with the given email and phone number.
         """
@@ -48,7 +49,6 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save()
 
-
         return user
 
 
@@ -57,6 +57,12 @@ class User(AbstractUser):
     username = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(unique=True)
     phone_number = PhoneNumberField(unique=True)
+    user_type = models.CharField(
+        max_length=10,
+        choices=choices.UserTypeChoices.choices,
+        blank=True,
+        null=True
+    )
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
